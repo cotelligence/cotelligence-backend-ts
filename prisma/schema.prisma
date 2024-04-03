@@ -1,0 +1,86 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+enum RunpodStatus {
+  NotStarted
+  Starting
+  Running
+  Stopped
+  Error
+
+  @@map("runpod_status")
+}
+
+enum GpuSource {
+  Runpod
+
+  @@map("gpu_source")
+}
+
+model GpuMint {
+  id            Int            @id @default(autoincrement())
+  mint          String         @unique
+  gpuSource     GpuSource      @map("gpu_source")
+  owner         String
+  minted        Boolean        @default(false)
+  mintTransfers MintTransfer[]
+  runpodMint    RunpodMint?
+  createdAt     DateTime       @default(now()) @map("created_at")
+
+  @@map("gpu_mint")
+}
+
+model BondMint {
+  id        Int      @id @default(autoincrement())
+  mint      String   @unique
+  owner     String
+  minted    Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([owner])
+  @@map("bond_mint")
+}
+
+model RunpodMint {
+  id               Int          @id @default(autoincrement())
+  sig              String
+  mint             String       @unique
+  runpodId         String?      @map("runpod_id")
+  runpodHostId     String?      @map("runpod_host_id")
+  runpodPrivateKey String?      @map("runpod_private_key")
+  runpodPublicKey  String?      @map("runpod_public_key")
+  runpodStatus     RunpodStatus @default(NotStarted) @map("runpod_status")
+  gpuMint          GpuMint?     @relation(fields: [mint], references: [mint])
+  createdAt        DateTime     @default(now()) @map("created_at")
+  expireAt         DateTime?    @map("expire_at")
+
+  @@index([sig])
+  @@index([mint])
+  @@map("runpod_mint")
+}
+
+model MintTransfer {
+  id               Int      @id @default(autoincrement())
+  sig              String
+  mint             String
+  fromAddr         String   @map("from_addr")
+  toAddr           String   @map("to_addr")
+  slot             Int
+  gpuMint          GpuMint? @relation(fields: [mint], references: [mint])
+  createdAt        DateTime @default(now()) @map("created_at")
+  sshPubkeyUpdated Boolean  @default(false) @map("ssh_pubkey_updated")
+
+  @@unique([sig, mint])
+  @@index([sig])
+  @@index([mint])
+  @@index([fromAddr])
+  @@index([toAddr])
+  @@index([slot])
+  @@map("mint_transfer")
+}

@@ -1,0 +1,4 @@
+{
+  "schema.prisma": "prisma format",
+  "*.ts": ["eslint --fix", "prettier --write"]
+}

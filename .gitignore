@@ -1,0 +1,31 @@
+# ide
+.idea/
+
+# artifacts
+dist/
+node_modules/
+
+# yarn
+.yarn/cache/
+.yarn/install-state.gz
+
+# yarn test
+coverage/
+
+# env
+.env
+.env.test
+
+# devspace
+.devspace
+devspace.yaml
+devspace_start.sh
+
+# configmaps
+configmaps/
+
+# ci
+.gitlab-ci.yml
+
+# sonar
+sonar-project.properties
